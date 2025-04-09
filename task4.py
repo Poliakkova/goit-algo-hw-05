@@ -9,18 +9,25 @@ colorama.init(autoreset=True)
 
 
 def input_error(func):
+    """
+    Decorator to process errors
+    :param func: Callable
+    :return: Callable
+    """
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
 
         except ValueError as e:
             print(e, e.args)
-            return colorama.Fore.RED + "🔴 Error! Wrong arguments. Must be: [command] [name] [phone number]"
+            return (colorama.Fore.RED +
+                    "🔴 Error! Wrong arguments. Must be: [command] [name] [phone number]")
 
         except KeyError as e:
             # якщо в KeyError поклали другий аргумент exists
             if len(e.args) == 2 and e.args[1] == 'exists':
-                return colorama.Fore.RED + f"🔴 Error! Contact with name '{e.args[0]}' already exists"
+                return (colorama.Fore.RED +
+                        f"🔴 Error! Contact with name '{e.args[0]}' already exists")
 
             return colorama.Fore.RED + f"🔴 Contact with name '{e.args[0]}' not found"
 
@@ -33,6 +40,9 @@ def input_error(func):
 
 @input_error
 def main():
+    """
+    Communicates with user, parses inputs
+    """
     print(colorama.Style.BRIGHT + colorama.Fore.LIGHTYELLOW_EX +
           "Welcome to bot-assistant 📞Phone Book📞! What can I help you with? 😊")
     print(show_help())
@@ -48,7 +58,7 @@ def main():
 
         if command in ('exit', 'close'):
             break
-        elif command == 'hello':
+        if command == 'hello':
             print('How can I help you?')
         elif command == 'help':
             print(show_help())
@@ -61,7 +71,8 @@ def main():
         elif command == 'all':
             print(show_all(contacts))
         else:
-            print(colorama.Fore.YELLOW + "⚠️ It's not a command. Type 'help' to see available commands")
+            print(colorama.Fore.YELLOW +
+                  "⚠️ It's not a command. Type 'help' to see available commands")
 
     print(colorama.Style.BRIGHT + colorama.Fore.LIGHTYELLOW_EX +
           "Good bye! 😊")
@@ -69,12 +80,21 @@ def main():
 
 @input_error
 def parse_input(input_str: str):
+    """
+    Breaks string into command and arguments
+    :param input_str: str
+    :return: str, list
+    """
     command, *args = input_str.split()
     command = command.strip().lower()
     return command, *args
 
 
 def show_help():
+    """
+    Returns formatted command list
+    :return: str
+    """
     return ("Command list:\n"
             "\tadd [name] [phone number]        | add new name and phone number\n"
             "\tphone [name]                     | find phone number by person's name\n"
@@ -86,16 +106,27 @@ def show_help():
 
 @input_error
 def change_contact(args, contacts:dict):
+    """
+    Changes existing contact
+    :param args: list
+    :param contacts: dict
+    :return: str
+    """
     name, phone = args
     if name in contacts:
         contacts[name] = phone
         return colorama.Fore.GREEN + '✅ Contact changed!'
-    else:
-        raise KeyError
+    raise KeyError
 
 
 @input_error
 def add_contact(args, contacts:dict):
+    """
+    Adds new contact if not exists yet
+    :param args: list
+    :param contacts: dict
+    :return: str
+    """
     name, phone = args
 
     if name in contacts:
@@ -107,11 +138,22 @@ def add_contact(args, contacts:dict):
 
 @input_error
 def find_contact(name, contacts:dict):
+    """
+    Returns contact if found
+    :param name: list
+    :param contacts: dict
+    :return: str
+    """
     return f"{name[0]}: {contacts[name[0]]}"
 
 
 @input_error
 def show_all(contacts:dict):
+    """
+    Return a formatted string of contacts list
+    :param contacts: dict
+    :return: str
+    """
     if len(contacts) == 0:
         return 'No contacts found'
 
